@@ -43,7 +43,7 @@ def getText(html):
         s.extract()
     return script.body.get_text().replace("\n", "  ")
 
-def getKeyWords(desc):
+def getKeyWordsDesc(desc):
     words = desc.lower().split(" ")
     words = [w for w in words if w in keywords]
     freqs = list(set(words))
@@ -63,12 +63,35 @@ def getKaggleTitles(date):
     titles = list(map(lambda x: x["title"], f))
     return titles
 
-def getSentiment(date):
-    f = quandl.get_table("IFT/NSA",
-                         date=formatDate(date, "-"),
-                         paginate=True,
-                         qopts={"columns":["ticker", "sentiment", "news_volume"]})
-    return list(zip(f.ticker, f.sentiment, f.news_volume))
+def getSentiment(dates, ticker=None):
+    dates = [formatDate(d, "-") for d in dates] if len(dates) != 3 else formatDate(dates, "-")
+    f = 1
+    if not ticker:
+        f = quandl.get_table("IFT/NSA",
+                             date=dates,
+                             paginate=True,
+                             qopts={"columns":["ticker", "sentiment", "news_volume"]})
+    else:
+        f = quandl.get_table("IFT/NSA",
+                             date=dates,
+                             ticker=ticker,
+                             paginate=True,
+                             qopts={"columns":["ticker", "date", "sentiment", "news_volume"]})
+
+        lst = list(zip(f.date, f.ticker, f.sentiment, f.news_volume))
+        datesStr = list(set(f.date)); datesStr.sort()
+        ret = [[] for i in range(len(datesStr))]
+        for i in lst:
+            ret[datesStr.index(i[0])].append((i[1], i[2], i[3]))
+        return ret
+            
+
+def getKeywords(search, ticker=False):
+    # We want to find the company name if we don't have it already
+    # if ticker, make company name
+    if ticker: search = getNameFromTicker(search)
+    return getKeyWordsDesc(getText(getHtml(getLinksQuery(search)[0])))
+        
 
 def getAllTickers():
     return list(set(quandl.get_table("IFT/NSA", date="2016-06-27",
@@ -91,11 +114,3 @@ maxTitleLen  = 25
 #model.add(Embedding(max_features, embeddingSize))
 #model.add(Conv1D(kernel_size=(
 """
-
-# Let's use a NN to buy tickers at lowest and sell at highest
-
-def gen_train_batch(batchsize):
-    dims = (batchsize, 
-
-
-model = Sequential()
