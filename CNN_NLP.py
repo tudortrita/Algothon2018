@@ -18,10 +18,13 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Conv1D, Dense, Embedding
 from tensorflow.keras.optimizers import RMSprop
 
-keywords = ["copper", "aluminium", "zinc", "lead", "gold",
+keywords = ["copper", "aluminium", "aluminum", "zinc", "lead", "gold",
             "oil", "alloy", "tin", "nickel", "cobalt", "molybdenum",
+            "cadmium", "silver", "gallium", "thallium", "technetium",
             "steel", "iron", "platinum", "palladium",
-            "lme", "battery", "grade", "lithium", "electric", ]
+            "lme", "battery", "grade", "lithium", "electric", "electricity",
+            "comex", "semiconductor", "semiconductors", "petroleum",
+            "petrol", "diesel"]
 
 date = [27, 6, 2016]
 
