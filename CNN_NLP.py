@@ -1,22 +1,9 @@
-"""
-import numpy as np
-import csv, numpy
-
-dataFile = open("./mystery_symbol_train.csv", "r")
-
-dataReader = csv.reader(dataFile, delimiter=",")
-for i in range(10):
-    print(dataReader.__next__())
-"""
-
 import pickle, quandl, re, json, random
 import urllib.request
 from googlesearch import search
 from bs4 import BeautifulSoup as bs
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv1D, Dense, Embedding
-from tensorflow.keras.optimizers import RMSprop
+quandl.ApiConfig.api_key = "KRdkqvs9L6KvLb2QVxiS"
 
 keywords = ["copper", "aluminium", "aluminum", "zinc", "lead", "gold",
             "oil", "alloy", "tin", "nickel", "cobalt", "molybdenum",
@@ -114,8 +101,12 @@ def dataMine():
     tickers = getAllTickers()
     random.shuffle(tickers)
     for i in tickers:
-        name = getNameFromTicker(i)
-        keywords = getKeywords(name, False)
+        try:
+            name = getNameFromTicker(i)
+            keywords = getKeywords(name, False)
+        except:
+            print("Generic error")
+            continue
         output.write(i+","+name+","+str(len(set(keywords)))+","+str(len(keywords)))
         for k in list(set(keywords)):
             output.write(","+k)
