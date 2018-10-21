@@ -26,13 +26,20 @@ keywords = ["copper", "aluminium", "zinc", "lead", "gold",
 date = [27, 6, 2016]
 
 def getHtml(page):
-    req = urllib.request.Request(
-        page, 
-        data=None, 
-        headers={
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
-        })
-    return urllib.request.urlopen(req).read().decode("utf-8")
+    try:
+        req = urllib.request.Request(
+            page, 
+            data=None, 
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+            })
+        return urllib.request.urlopen(req).read().decode("ISO-8859-1")
+    except urllib.error.HTTPError:
+        print("HTTP error, bot detected!")
+        return []
+    except:
+        print("Unknown error fetching webpage")
+        return []
 
 def getLinksQuery(query):
     return list(search(query, stop=10))
@@ -43,10 +50,10 @@ def getText(html):
         s.extract()
     return script.body.get_text().replace("\n", "  ")
 
-def getKeyWordsDesc(desc):
+def getKeyWordsDesc(desc, unique=True):
     words = desc.lower().split(" ")
     words = [w for w in words if w in keywords]
-    freqs = list(set(words))
+    freqs = list(set(words)) if unique else words
     return freqs # Return key words
     
     
@@ -96,6 +103,26 @@ def getKeywords(search, ticker=False):
 def getAllTickers():
     return list(set(quandl.get_table("IFT/NSA", date="2016-06-27",
                    paginate=True, qopts={"columns":"ticker"}).ticker))
+
+def dataMine():
+    output = open("dataMineResults.csv", "w+")
+    output.write("Ticker,Name,MatchesUnique,MatchesTotal,Keywords\n")
+    output.flush()
+    tickers = getAllTickers()
+    random.shuffle(tickers)
+    for i in tickers:
+        name = getNameFromTicker(i)
+        keywords = getKeywords(name, False)
+        output.write(i+","+name+","+str(len(set(keywords)))+","+str(len(keywords)))
+        for k in list(set(keywords)):
+            output.write(","+k)
+        output.write("\n")
+        output.flush()
+        print(i.ljust(10), name.ljust(20), keywords)
+
+if __name__ == "__main__":
+    dataMine()
+
 """
 #using_tickers = getAllTickers()
 #using_tickers.shuffle()
