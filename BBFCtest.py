@@ -1,5 +1,3 @@
-# Big Black Full Cock Test
-
 from pandas import Series
 import pandas as pd
 from statsmodels.tsa.stattools import adfuller
